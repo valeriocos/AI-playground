@@ -2,6 +2,8 @@
 
 A pixel-art, movie character reveal game built with React and Vite.
 
+Live version available at https://ai-playground-eta-vert.vercel.app/
+
 ## Getting Started
 
 To run this project locally, follow these steps:
