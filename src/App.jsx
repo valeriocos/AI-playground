@@ -80,7 +80,7 @@ const SmokeBomb = ({ x, y }) => {
     );
 };
 
-const CharacterBox = ({ char, onReveal, canSelect }) => {
+const CharacterBox = ({ char, onReveal, canSelect, isWinner }) => {
     const spriteRef = useRef(null);
     const [smokePos, setSmokePos] = useState(null);
 
@@ -94,7 +94,7 @@ const CharacterBox = ({ char, onReveal, canSelect }) => {
     return (
         <div 
             id={char.id}
-            className={`character-box ${char.revealed ? 'revealed' : 'hidden'} ${char.blinking ? 'blink' : ''}`}
+            className={`character-box ${char.revealed ? 'revealed' : 'hidden'} ${char.blinking ? 'blink' : ''} ${isWinner ? 'winner' : ''}`}
             onClick={handleClick}
             ref={spriteRef}
         >
@@ -162,6 +162,8 @@ function App() {
     const [canSelect, setCanSelect] = useState(false);
     const [isShuffling, setIsShuffling] = useState(false);
     const [status, setStatus] = useState('Stars ready on stage!');
+    const [winnerId, setWinnerId] = useState(null);
+    const [isVictoryFlashing, setIsVictoryFlashing] = useState(false);
     const particlesRef = useRef([]);
 
     // Load from local storage
@@ -244,6 +246,8 @@ function App() {
             setTimeout(() => {
                 setIsShuffling(false);
                 setCanSelect(true);
+                setWinnerId(null);
+                setIsVictoryFlashing(false);
                 announce('Pick your champion!');
             }, CONFIG.CURTAIN_DURATION + 300);
         }, CONFIG.CURTAIN_DURATION);
@@ -282,6 +286,9 @@ function App() {
 
         if (mode === 'A') {
             setCanSelect(false);
+            setWinnerId(id);
+            setIsVictoryFlashing(true);
+            announce(`WINNER: ${char.name}!`);
         } else {
             // Mode B Elimination
             setTimeout(() => {
@@ -292,6 +299,8 @@ function App() {
                     );
                     const remaining = updated.filter(c => !c.eliminated);
                     if (remaining.length === 1) {
+                        setWinnerId(remaining[0].id);
+                        setIsVictoryFlashing(true);
                         return updated.map(c => c.id === remaining[0].id ? { ...c, revealed: true, blinking: true } : c);
                     }
                     return updated;
@@ -315,6 +324,8 @@ function App() {
             blinking: false
         })));
         setCanSelect(false);
+        setWinnerId(null);
+        setIsVictoryFlashing(false);
         announce('Welcome back to the show!');
     };
 
@@ -339,7 +350,7 @@ function App() {
                 <div className="curtain-side curtain-left"></div>
                 <div className="curtain-side curtain-right"></div>
                 <div id="curtain-main" className={isShuffling ? 'active' : ''}></div>
-                <div id="table">
+                <div id="table" className={`${winnerId ? 'winner-active' : ''} ${isVictoryFlashing ? 'flashing-stage' : ''}`}>
                     <div id="caps-container">
                         {characters.filter(c => !c.eliminated).map(char => (
                             <CharacterBox 
@@ -347,6 +358,7 @@ function App() {
                                 char={char} 
                                 onReveal={handleReveal}
                                 canSelect={canSelect}
+                                isWinner={winnerId === char.id}
                             />
                         ))}
                     </div>

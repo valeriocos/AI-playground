@@ -172,6 +172,23 @@ header {
     pointer-events: none;
 }
 
+#table.winner-active::before {
+    background: 
+        radial-gradient(circle at center, #fff 0%, #ff0 30%, transparent 70%),
+        radial-gradient(circle at center, #fff 0%, #0ff 30%, transparent 70%),
+        radial-gradient(circle at center, #fff 0%, #f0f 30%, transparent 70%);
+    background-size: 100px 40px;
+    background-repeat: space;
+    animation: footlights-disco 0.5s infinite alternate;
+    opacity: 1;
+    filter: drop-shadow(0 0 20px #fff);
+}
+
+@keyframes footlights-disco {
+    0% { filter: hue-rotate(0deg) drop-shadow(0 0 15px #fff); }
+    100% { filter: hue-rotate(360deg) drop-shadow(0 0 30px #fff); }
+}
+
 /* Floor Glow from Lights */
 #table-area::after {
     content: '';
@@ -277,6 +294,51 @@ header {
 .character-box.revealed .character-sprite {
     filter: none;
     opacity: 1;
+}
+
+/* Winner Spotlight */
+.character-box.winner::after {
+    content: '';
+    position: absolute;
+    top: -500px;
+    left: 50%;
+    width: 200px;
+    height: 1000px;
+    background: radial-gradient(ellipse at top, rgba(255, 255, 200, 0.4) 0%, transparent 70%);
+    transform: translateX(-50%);
+    pointer-events: none;
+    z-index: -1;
+    animation: spotlight-sweep 2s infinite ease-in-out;
+}
+
+.character-box.winner .character-sprite {
+    filter: drop-shadow(0 0 15px var(--primary-color));
+    animation: winner-bounce 0.5s infinite alternate;
+}
+
+.character-box.winner .character-name-box {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 10px var(--primary-color);
+}
+
+@keyframes spotlight-sweep {
+    0%, 100% { transform: translateX(-50%) rotate(-5deg); opacity: 0.6; }
+    50% { transform: translateX(-50%) rotate(5deg); opacity: 0.8; }
+}
+
+@keyframes winner-bounce {
+    from { transform: translateY(0); }
+    to { transform: translateY(-20px); }
+}
+
+.flashing-stage {
+    animation: stage-flash 0.2s 5;
+}
+
+@keyframes stage-flash {
+    0%, 100% { background: transparent; }
+    50% { background: rgba(255, 255, 255, 0.1); }
 }
 
 /* Smoke Effect */
