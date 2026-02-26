@@ -94,18 +94,20 @@ const CharacterBox = ({ char, onReveal, canSelect, isWinner }) => {
     return (
         <div 
             id={char.id}
-            className={`character-box ${char.revealed ? 'revealed' : 'hidden'} ${char.blinking ? 'blink' : ''} ${isWinner ? 'winner' : ''}`}
+            className={`character-box ${char.revealed ? 'revealed' : 'hidden'} ${char.blinking ? 'blink' : ''} ${isWinner ? 'winner' : ''} ${char.eliminated ? 'eliminated' : ''} ${char.name === '' ? 'empty-slot' : ''}`}
             onClick={handleClick}
             ref={spriteRef}
         >
             <div className="character-sprite">
-                {char.revealed ? (
-                    <div dangerouslySetInnerHTML={{ __html: CHARACTERS_SVG[char.spriteIndex] }} />
-                ) : (
-                    MYSTERY_SHAPE
-                )}
+                {char.name !== '' ? (
+                    char.revealed ? (
+                        <div dangerouslySetInnerHTML={{ __html: CHARACTERS_SVG[char.spriteIndex] }} />
+                    ) : (
+                        MYSTERY_SHAPE
+                    )
+                ) : null}
             </div>
-            <div className="character-name-box">{char.name}</div>
+            <div className="character-name-box">{char.name || '---'}</div>
             {smokePos && <SmokeBomb x={smokePos.x} y={smokePos.y} />}
         </div>
     );
@@ -195,21 +197,24 @@ function App() {
         const text = e.target.value;
         setNames(text);
         
-        let newNames = text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
-        if (newNames.length > 16) {
-            newNames = newNames.slice(0, 16);
+        let rawLines = text.split('\n').map(s => s.trim());
+        if (rawLines.length > 16) {
+            rawLines = rawLines.slice(0, 16);
             announce('Maximum 16 stars allowed on stage!');
         }
 
-        const newChars = newNames.map((name, index) => {
-            const existing = characters.find(c => c.name === name);
+        const newChars = rawLines.map((name, index) => {
+            // Find if this specific slot (index) already had a character
+            const existing = characters[index];
             
             let hash = 0;
-            for (let i = 0; i < name.length; i++) {
-                hash = ((hash << 5) - hash) + name.charCodeAt(i);
-                hash |= 0;
+            if (name) {
+                for (let i = 0; i < name.length; i++) {
+                    hash = ((hash << 5) - hash) + name.charCodeAt(i);
+                    hash |= 0;
+                }
             }
-            const spriteIndex = Math.abs(hash) % CHARACTERS_SVG.length;
+            const spriteIndex = name ? (Math.abs(hash) % CHARACTERS_SVG.length) : -1;
 
             return {
                 id: existing ? existing.id : `char-${index}-${Date.now()}`,
@@ -223,11 +228,12 @@ function App() {
 
         setCharacters(newChars);
         setCanSelect(false);
-        announce('Stars ready on stage!');
+        announce('Theater update: Slots sync!');
     };
 
     const startShuffle = () => {
-        if (isShuffling || characters.length === 0) return;
+        const participants = characters.filter(c => c.name.length > 0);
+        if (isShuffling || participants.length === 0) return;
         
         setIsShuffling(true);
         setCanSelect(false);
@@ -237,9 +243,12 @@ function App() {
             setCharacters(prev => {
                 const updated = prev.map(c => ({
                     ...c,
-                    revealed: c.eliminated ? c.revealed : false,
+                    revealed: (c.eliminated || c.name === '') ? c.revealed : false,
                     blinking: false
                 }));
+                // We keep all characters (including empty ones) in the list to maintain grid size
+                // but we only shuffle the ones with names? 
+                // Actually, let's keep it simple: keep the whole list but shuffle them.
                 return [...updated].sort(() => Math.random() - 0.5);
             });
             
@@ -274,6 +283,9 @@ function App() {
     };
 
     const handleReveal = (id) => {
+        const char = characters.find(c => c.id === id);
+        if (!char || char.name === '') return;
+
         setCharacters(prev => {
             const updated = prev.map(c => 
                 c.id === id ? { ...c, revealed: true, blinking: true } : c
@@ -281,7 +293,6 @@ function App() {
             return updated;
         });
 
-        const char = characters.find(c => c.id === id);
         announce(`Revealed: ${char.name}!`);
 
         if (mode === 'A') {
@@ -297,7 +308,7 @@ function App() {
                     const updated = prev.map(c => 
                         c.id === id ? { ...c, eliminated: true, blinking: false } : c
                     );
-                    const remaining = updated.filter(c => !c.eliminated);
+                    const remaining = updated.filter(c => !c.eliminated && c.name !== '');
                     if (remaining.length === 1) {
                         setWinnerId(remaining[0].id);
                         setIsVictoryFlashing(true);
@@ -307,7 +318,7 @@ function App() {
                 });
 
                 setTimeout(() => {
-                    const remaining = characters.filter(c => !c.eliminated && c.id !== id);
+                    const remaining = characters.filter(c => !c.eliminated && c.name !== '' && c.id !== id);
                     if (remaining.length === 1) {
                         announce(`THE STAR OF THE SHOW: ${remaining[0].name}!`);
                     }
@@ -352,12 +363,12 @@ function App() {
                 <div id="curtain-main" className={isShuffling ? 'active' : ''}></div>
                 <div id="table" className={`${winnerId ? 'winner-active' : ''} ${isVictoryFlashing ? 'flashing-stage' : ''}`}>
                     <div id="caps-container">
-                        {characters.filter(c => !c.eliminated).map(char => (
+                        {characters.map(char => (
                             <CharacterBox 
                                 key={char.id} 
                                 char={char} 
                                 onReveal={handleReveal}
-                                canSelect={canSelect}
+                                canSelect={canSelect && char.name !== ''}
                                 isWinner={winnerId === char.id}
                             />
                         ))}
