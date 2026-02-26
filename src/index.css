@@ -58,7 +58,7 @@ body {
         90deg,
         rgba(255, 0, 0, 0.03),
         rgba(0, 255, 0, 0.01),
-        rgba(0, 0, 255, 0.03)
+        rgba(0, 255, 0, 0.03)
     );
     background-size: 100% 4px, 3px 100%;
     pointer-events: none;
@@ -240,6 +240,14 @@ header {
     height: 64px;
     image-rendering: pixelated;
     transition: filter 0.3s, opacity 0.5s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.character-sprite svg {
+    width: 100%;
+    height: 100%;
 }
 
 .character-box.hidden .character-sprite {

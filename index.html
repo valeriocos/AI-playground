@@ -1,67 +1,15 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lucky Cap - Pixel-Art Beer Cap Shuffle</title>
-    <link rel="stylesheet" href="style.css">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Theater Reveal - React</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-</head>
-<body class="crt-enabled">
-    <div id="game-container">
-        <!-- CRT Scanline Overlay -->
-        <div class="crt-overlay"></div>
-
-        <header>
-            <h1 class="pixel-text">THEATER REVEAL</h1>
-            <p class="pixel-subtitle">"Enter names, reveal the stars!"</p>
-        </header>
-
-        <main id="table-area">
-            <div class="curtain-side curtain-left"></div>
-            <div class="curtain-side curtain-right"></div>
-            <div id="curtain-main"></div>
-            <div id="table">
-                <div id="caps-container"></div>
-            </div>
-        </main>
-
-        <aside id="control-panel" class="pixel-border">
-            <div class="input-group">
-                <label for="name-list" class="pixel-label">ENTER NAMES (one per line):</label>
-                <textarea id="name-list" placeholder="John Doe&#10;Jane Smith&#10;..."></textarea>
-            </div>
-
-            <div class="mode-selector pixel-border">
-                <span class="pixel-label">WIN CONDITION:</span>
-                <div class="radio-group">
-                    <label>
-                        <input type="radio" name="game-mode" value="A" checked>
-                        <span>FIRST WINS</span>
-                    </label>
-                    <label>
-                        <input type="radio" name="game-mode" value="B">
-                        <span>LAST WINS</span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="actions">
-                <button id="shuffle-btn" class="pixel-btn important">SHUFFLE</button>
-                <button id="new-game-btn" class="pixel-btn">NEW GAME</button>
-                <button id="clear-btn" class="pixel-btn danger">CLEAR ALL</button>
-            </div>
-        </aside>
-
-        <!-- Hidden screen for particles -->
-        <canvas id="particle-canvas"></canvas>
-
-        <!-- Screen reader status -->
-        <div id="status-announcer" class="sr-only" aria-live="polite"></div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
 </html>
